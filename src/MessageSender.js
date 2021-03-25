@@ -73,7 +73,7 @@ function MessageSender() {
     const handleChange = (e) => {
         if (e.target.files[0]) {
             setImage(e.target.files[0])
-            setImgUploadConfirm('Image is added and will be displayed after clicking the Post button');
+            setImgUploadConfirm('Image is added and will be displayed after posting!');
         }
     }
 

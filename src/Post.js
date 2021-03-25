@@ -101,6 +101,7 @@ function Post({postId, profilePic, image, username, timestamp, message, userId, 
             text: comment,
             username: username,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            profilePhoto: currentUser.photoURL,
         });
         setComment('');
     }
@@ -148,11 +149,11 @@ function Post({postId, profilePic, image, username, timestamp, message, userId, 
             </form>
             {
                 comments.map((comment) => (
-                    <div className={`comments__show myself`}>
+                    <div className={`comments__show`}>
                         <Avatar
                             className="post__avatar2"
                             alt=""
-                            src={currentUser.photoURL}
+                            src={comment.profilePhoto}
                         />
                         <div className="container__comments">
                             <p><span>{comment.username}</span><i class="post__verified"></i>&nbsp; {comment.text}</p>

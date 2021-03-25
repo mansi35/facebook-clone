@@ -17,6 +17,14 @@
 .messageSender__top > form {
     flex: 1;
     display: flex;
+    flex-direction: column;
+}
+
+.messageSender__top > form > h4 {
+    font-size: small;
+    font-weight: 600;
+    color: gray;
+    margin: 0 15px;
 }
 
 .messageSender__top > form > input {
