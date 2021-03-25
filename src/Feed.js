@@ -1,29 +1,39 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Feed.css'
 import MessageSender from './MessageSender'
 import Post from './Post'
 import StoryReel from './StoryReel'
+import db from './firebase'
 
 function Feed() {
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+        db.collection('posts')
+            .orderBy("timestamp", "desc")
+            .onSnapshot((snapshot) => 
+            setPosts(snapshot.docs.map((doc) => ({
+                id: doc.id,
+                data: doc.data()
+            })))
+        );
+    }, [])
+
     return (
         <div className="feed">
             <StoryReel />
             <MessageSender />
 
-            <Post 
-                profilePic="https://avatars.githubusercontent.com/u/53896251?s=460&u=4ca2b1f5aa83da6ef43e59f3840edc6f31ff577a&v=4"
-                message="WOW this works!"
-                timestamp="This is a timestamp"
-                username=".__mansayy__."
-                image="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixid=MXwxMjA3fDB8MHxzZWFyY2h8MTN8fGZhc2hpb258ZW58MHx8MHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60"
-            />
-            <Post 
-                profilePic="https://avatars.githubusercontent.com/u/53896251?s=460&u=4ca2b1f5aa83da6ef43e59f3840edc6f31ff577a&v=4"
-                message="WOW this works too!"
-                timestamp="This is a timestamp"
-                username=".__mansayy__."
-            />
-            <Post />
+            {posts.map(post => (
+                <Post
+                    key={post.data.id}
+                    profilePic={post.data.profilePic}
+                    message={post.data.message}
+                    timestamp={post.data.timestamp}
+                    username={post.data.username}
+                    image={post.data.image}
+                />
+            ))}
         </div>
     )
 }

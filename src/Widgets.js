@@ -4,7 +4,7 @@ import './Widgets.css'
 function Widgets() {
     return (
         <div className="widgets">
-        <div className="fb-page" data-href="https://www.facebook.com/myntra" data-tabs="timeline" data-width="340" data-height="1500" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/myntra" className="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/myntra">Myntra</a></blockquote></div>    
+            <iframe title="Myntra" src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fmyntra&tabs=timeline&width=340&height=1500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" width="340" height="100%" style={{ border: "none", overflow: "hidden"}} scrolling="no" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>
         </div>
     )
 }

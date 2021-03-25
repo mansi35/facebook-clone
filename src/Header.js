@@ -11,9 +11,11 @@ import ForumIcon from '@material-ui/icons/Forum';
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Avatar, IconButton } from '@material-ui/core';
+import {useAuth} from './AuthContext';
 
 
 function Header() {
+    const {currentUser} = useAuth();
     return (
         <div className='header'>
             <div className="header__left">
@@ -42,8 +44,8 @@ function Header() {
             </div>
             <div className="header__right">
                 <div className="header__info">
-                    <Avatar src="https://avatars.githubusercontent.com/u/53896251?s=460&u=4ca2b1f5aa83da6ef43e59f3840edc6f31ff577a&v=4" />
-                    <h4>.__mansayy__.</h4>
+                    <Avatar src={currentUser.photoURL} />
+                    <h4>{currentUser.displayName}</h4>
                 </div>
                 <IconButton>
                     <AddIcon />

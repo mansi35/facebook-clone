@@ -8,11 +8,13 @@ import ChatIcon from '@material-ui/icons/Chat';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
+import {useAuth} from './AuthContext';
 
 function Sidebar() {
+    const {currentUser} = useAuth();
     return (
         <div className="sidebar">
-            <SidebarRow src="https://avatars.githubusercontent.com/u/53896251?s=460&u=4ca2b1f5aa83da6ef43e59f3840edc6f31ff577a&v=4" title="Mansi Sharma" />
+            <SidebarRow src={currentUser.photoURL} title={currentUser.displayName} />
             <SidebarRow Icon={LocalHospitalIcon} title="COVID-19 Information Center" />
             <SidebarRow Icon={EmojiFlagsIcon} title="Pages" />
             <SidebarRow Icon={PeopleIcon} title="Friends" />
