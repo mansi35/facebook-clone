@@ -4,8 +4,10 @@ import MessageSender from './MessageSender'
 import Post from './Post'
 import StoryReel from './StoryReel'
 import db from './firebase'
+import {useAuth} from './AuthContext';
 
 function Feed() {
+    const {currentUser} = useAuth();
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
@@ -14,7 +16,7 @@ function Feed() {
             .onSnapshot((snapshot) => 
             setPosts(snapshot.docs.map((doc) => ({
                 id: doc.id,
-                data: doc.data()
+                post: doc.data()
             })))
         );
     }, [])
@@ -24,14 +26,16 @@ function Feed() {
             <StoryReel />
             <MessageSender />
 
-            {posts.map(post => (
+            {posts.map(({ id, post }) => (
                 <Post
-                    key={post.data.id}
-                    profilePic={post.data.profilePic}
-                    message={post.data.message}
-                    timestamp={post.data.timestamp}
-                    username={post.data.username}
-                    image={post.data.image}
+                    postId={id}
+                    profilePic={post.profilePic}
+                    message={post.message}
+                    timestamp={post.timestamp}
+                    username={post.username}
+                    image={post.image}
+                    userId={currentUser.uid}
+                    likes={post.likes}
                 />
             ))}
         </div>

@@ -64,3 +64,22 @@
 .messageSender__option > h4 {
     margin-left: 10px;
 }
+
+.messageSender__imageFile {
+    display: none;
+}
+
+.messageSender__progress {
+    width: 90%;
+    margin-right: 10px;
+    margin-left: 20px;
+    margin-bottom:10px;
+    display: none;
+}
+
+.messageSender__progress.show {
+    width: 90%;
+    margin-right: 10px;
+    margin-left: 20px;
+    margin-bottom:10px;
+}

@@ -1,13 +1,109 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Post.css';
 import  { Avatar } from '@material-ui/core';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import NearMeIcon from '@material-ui/icons/NearMe';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
+import { useAuth } from './AuthContext'
+import db from './firebase'
+import firebase from 'firebase'
 
-function Post({key, profilePic, image, username, timestamp, message }) {
+function Post({postId, profilePic, image, username, timestamp, message, userId, likes }) {
+    const {currentUser} = useAuth();
+    const [comments, setComments] = useState([]);
+    const [comment, setComment] = useState('');
+    const [show, setShow] = useState('like');
+    const [show2, setShow2] = useState('textforlike');
+
+    useEffect(() => {
+        let unsubscribe;
+        if (postId) {
+            unsubscribe = db.collection("posts").doc(postId).collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+                setComments(snapshot.docs.map((doc) => doc.data()));
+            });
+        }
+        return () => {
+            unsubscribe();
+        }
+    }, [postId]);
+
+    useEffect(() => {
+        db.collection("posts")
+            .doc(postId)
+            .collection("likes")
+            .doc(userId)
+            .get()
+            .then(doc2 => {
+                if (doc2.data()) {
+                    if (show === 'like') {
+                        setShow('like blue');
+                        setShow2('textforlike bluetextforlike')
+                    } else {
+                        setShow('like');
+                        setShow2('textforlike')
+                    }
+                }
+            })
+            // eslint-disable-next-line
+    }, [postId, userId]);
+
+    const likeHandle = (event) => {
+        event.preventDefault();
+        if (show === 'like') {
+            setShow('like blue');
+            setShow2('textforlike bluetextforlike')
+        } else {
+            setShow('like');
+            setShow2('textforlike')
+        }
+
+        db.collection('posts')
+            .doc(postId)
+            .get()
+            .then(docc => {
+                const data = docc.data()
+                console.log(show)
+                if (show === 'like') {
+                    db.collection("posts")
+                        .doc(postId)
+                        .collection("likes")
+                        .doc(userId)
+                        .get()
+                        .then(doc2 => {
+                            if (doc2.data()) {
+                                console.log(doc2.data())
+                            } else {
+                                db.collection("posts").doc(postId).collection("likes").doc(userId).set({
+                                    likes: 1
+                                });
+                                db.collection('posts').doc(postId).update({
+                                    likes: data.likes + 1
+                                });
+                            }
+                        })
+
+                } else {
+                    db.collection('posts').doc(postId).collection('likes').doc(userId).delete().then(function () {
+                        db.collection('posts').doc(postId).update({
+                            likes: data.likes - 1
+                        });
+                    })
+                }
+            })
+
+    }
+
+
+    const postComment = (event) => {
+        event.preventDefault();
+
+        db.collection("posts").doc(postId).collection("comments").add({
+            text: comment,
+            username: username,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        setComment('');
+    }
     return (
         <div className="post">
             <div className="post__top">
@@ -27,22 +123,43 @@ function Post({key, profilePic, image, username, timestamp, message }) {
             </div>
 
             <div className="post__options">
-                <div className="post__option">
-                    <ThumbUpIcon />
-                    <p>Like</p>
+                <div className="post__option post__notLiked" onClick={likeHandle}>
+                    <ThumbUpIcon className={show} />
+                    <p className={show2}>{likes} Like</p>
                 </div>
-                <div className="post__option">
-                    <ChatBubbleOutlineIcon />
+                <div className="post__option post__comment">
+                    <ChatBubbleOutlineIcon className="comment2" />
                     <p>Comment</p>
                 </div>
-                <div className="post__option">
-                    <NearMeIcon />
+                <div className="post__option post__share">
+                    <NearMeIcon className="share2" />
                     <p>Share</p>
                 </div>
-                <div className="post__option">
-                    <AccountCircleIcon />
-                    <ExpandMoreOutlinedIcon />
-                </div>
+            </div>
+            <div className="post__commentBox">
+            <form onSubmit={postComment}>
+                <Avatar
+                    className="post__avatar2"
+                    alt=""
+                    src={currentUser.photoURL}
+                />
+                <input className="post__commentInput" type="text" placeholder="Write a comment... " onChange={(e) => setComment(e.target.value)} />
+                <button type="submit" disabled={!comment}>Submit</button>
+            </form>
+            {
+                comments.map((comment) => (
+                    <div className={`comments__show myself`}>
+                        <Avatar
+                            className="post__avatar2"
+                            alt=""
+                            src={currentUser.photoURL}
+                        />
+                        <div className="container__comments">
+                            <p><span>{comment.username}</span><i class="post__verified"></i>&nbsp; {comment.text}</p>
+                        </div>
+                    </div>
+                ))
+            }
             </div>
         </div>
     )

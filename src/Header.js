@@ -9,13 +9,25 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import AddIcon from '@material-ui/icons/Add';
 import ForumIcon from '@material-ui/icons/Forum';
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { Avatar, IconButton } from '@material-ui/core';
 import {useAuth} from './AuthContext';
+import { useHistory } from 'react-router';
 
 
 function Header() {
-    const {currentUser} = useAuth();
+    const { currentUser, logout } = useAuth();
+    const history = useHistory();
+
+    async function handleSubmit() {
+        try {
+            await logout();
+            history.push("/login");
+        } catch {
+            alert("Failed to log out");
+        }
+    }
+
     return (
         <div className='header'>
             <div className="header__left">
@@ -56,8 +68,8 @@ function Header() {
                 <IconButton>
                     <NotificationsActiveIcon />
                 </IconButton>
-                <IconButton>
-                    <ExpandMoreIcon />
+                <IconButton onClick={handleSubmit}>
+                    <ExitToAppIcon />
                 </IconButton>
             </div>
         </div>
