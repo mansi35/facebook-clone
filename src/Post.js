@@ -7,8 +7,9 @@ import NearMeIcon from '@material-ui/icons/NearMe';
 import { useAuth } from './AuthContext'
 import db from './firebase'
 import firebase from 'firebase'
+import likeIcon from './like-16x16.png'
 
-function Post({postId, profilePic, image, username, timestamp, message, userId, likes }) {
+function Post({postId, profilePic, message, timestamp, username, image, userId, likes }) {
     const {currentUser} = useAuth();
     const [comments, setComments] = useState([]);
     const [comment, setComment] = useState('');
@@ -28,23 +29,18 @@ function Post({postId, profilePic, image, username, timestamp, message, userId, 
     }, [postId]);
 
     useEffect(() => {
-        db.collection("posts")
-            .doc(postId)
-            .collection("likes")
-            .doc(userId)
-            .get()
-            .then(doc2 => {
-                if (doc2.data()) {
-                    if (show === 'like') {
-                        setShow('like blue');
-                        setShow2('textforlike bluetextforlike')
-                    } else {
-                        setShow('like');
-                        setShow2('textforlike')
-                    }
+        db.collection("posts").doc(postId).collection("likes").doc(userId).get().then(doc2 => {
+            if (doc2.data()) {
+                if (show === 'like') {
+                    setShow('like blue');
+                    setShow2('textforlike bluetextforlike')
+                } else {
+                    setShow('like');
+                    setShow2('textforlike')
                 }
-            })
-            // eslint-disable-next-line
+            }
+        })
+        // eslint-disable-next-line
     }, [postId, userId]);
 
     const likeHandle = (event) => {
@@ -57,51 +53,43 @@ function Post({postId, profilePic, image, username, timestamp, message, userId, 
             setShow2('textforlike')
         }
 
-        db.collection('posts')
-            .doc(postId)
-            .get()
-            .then(docc => {
-                const data = docc.data()
-                console.log(show)
-                if (show === 'like') {
-                    db.collection("posts")
-                        .doc(postId)
-                        .collection("likes")
-                        .doc(userId)
-                        .get()
-                        .then(doc2 => {
-                            if (doc2.data()) {
-                                console.log(doc2.data())
-                            } else {
-                                db.collection("posts").doc(postId).collection("likes").doc(userId).set({
-                                    likes: 1
-                                });
-                                db.collection('posts').doc(postId).update({
-                                    likes: data.likes + 1
-                                });
-                            }
-                        })
-
-                } else {
-                    db.collection('posts').doc(postId).collection('likes').doc(userId).delete().then(function () {
-                        db.collection('posts').doc(postId).update({
-                            likes: data.likes - 1
+        db.collection('posts').doc(postId).get().then(docc => {
+            const data = docc.data()
+            console.log(show)
+            if (show === 'like') {
+                db.collection("posts").doc(postId).collection("likes").doc(userId).get().then(doc2 => {
+                    if (doc2.data()) {
+                        console.log(doc2.data())
+                    } else {
+                        db.collection("posts").doc(postId).collection("likes").doc(userId).set({
+                            likes: 1
                         });
-                    })
-                }
-            })
+                        db.collection('posts').doc(postId).update({
+                            likes: data.likes + 1
+                        });
+                    }
+                })
+
+            } else {
+                db.collection('posts').doc(postId).collection('likes').doc(userId).delete().then(function () {
+                    db.collection('posts').doc(postId).update({
+                        likes: data.likes - 1
+                    });
+                })
+            }
+        })
 
     }
-
 
     const postComment = (event) => {
         event.preventDefault();
 
         db.collection("posts").doc(postId).collection("comments").add({
             text: comment,
-            username: username,
+            username: currentUser.displayName,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             profilePhoto: currentUser.photoURL,
+            email: currentUser.email,
         });
         setComment('');
     }
@@ -123,10 +111,15 @@ function Post({postId, profilePic, image, username, timestamp, message, userId, 
                 <img src={image} alt="" />
             </div>
 
+            <div className="post__likes">
+                <img src={likeIcon} alt="like" />
+                <p>{likes} likes</p>
+            </div>
+
             <div className="post__options">
                 <div className="post__option post__notLiked" onClick={likeHandle}>
                     <ThumbUpIcon className={show} />
-                    <p className={show2}>{likes} Like</p>
+                    <p className={show2}>Like</p>
                 </div>
                 <div className="post__option post__comment">
                     <ChatBubbleOutlineIcon className="comment2" />
@@ -149,14 +142,14 @@ function Post({postId, profilePic, image, username, timestamp, message, userId, 
             </form>
             {
                 comments.map((comment) => (
-                    <div className={`comments__show`}>
+                    <div className={`comments__show ${comment.email === currentUser.email && 'myself'}`}>
                         <Avatar
                             className="post__avatar2"
                             alt=""
                             src={comment.profilePhoto}
                         />
                         <div className="container__comments">
-                            <p><span>{comment.username}</span><i class="post__verified"></i>&nbsp; {comment.text}</p>
+                            <p><span>{comment.username}</span>&nbsp; {comment.text}</p>
                         </div>
                     </div>
                 ))
